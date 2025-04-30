@@ -19,7 +19,7 @@ const data: ISiteMetadataResult = {
   siteTitle: 'Workouts Page',
   siteUrl: 'https://yaoshubin3574.github.io/workouts_page/',
   logo: 'https://p.sda1.dev/23/dabbc3fe25a87a2af69e4cd2f90d1490/logo.jpg',
-  description: 'YaoShubin Workouts Page',
+  description: '姚树彬的运动记录',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
   navLinks: [
     {
