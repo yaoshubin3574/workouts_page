@@ -19,7 +19,7 @@ const data: ISiteMetadataResult = {
   siteTitle: 'Workouts Page',
   siteUrl: 'https://yaoshubin3574.github.io/workouts_page/',
   logo: 'https://p.sda1.dev/23/dabbc3fe25a87a2af69e4cd2f90d1490/logo.jpg',
-  description: '姚树彬的运动记录',
+  description: 'Personal Workouts Page',
   keywords: 'workouts, running, cycling, riding, roadtrip, hiking, swimming',
   navLinks: [
     {
@@ -27,12 +27,12 @@ const data: ISiteMetadataResult = {
       url: `${getBasePath()}/summary`,
     },
     {
-      name: 'Blog',
-      url: '',
+      name: 'Strava',
+      url: 'https://www.strava.com/athletes/94671460',
     },
     {
       name: 'About',
-      url: '',
+      url: 'https://github.com/ben-29/running_page/blob/master/README-CN.md',
     },
   ],
 };
