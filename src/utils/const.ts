@@ -59,8 +59,8 @@ const ENGLISH_INFO_MESSAGE = (yearLength: number, year: string): string =>
   `Logged ${yearLength} Years of Outdoor Journey` +  ( year === 'Total' ? '' : `, the map show routes in ${year}`);
 
 // not support English for now
-const CHINESE_LOCATION_INFO_MESSAGE_FIRST ='不要停下来';
-const CHINESE_LOCATION_INFO_MESSAGE_SECOND = '不要停下探索的脚步';
+const CHINESE_LOCATION_INFO_MESSAGE_FIRST ='纵有疾风起';
+const CHINESE_LOCATION_INFO_MESSAGE_SECOND = '人生不言弃';
 
 const INFO_MESSAGE = IS_CHINESE ? CHINESE_INFO_MESSAGE : ENGLISH_INFO_MESSAGE;
 const FULL_MARATHON_RUN_TITLE = IS_CHINESE ? '全程马拉松' : 'Full Marathon';
