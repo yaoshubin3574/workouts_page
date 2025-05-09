@@ -51,7 +51,7 @@ const RICH_TITLE = true;
 
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
-const USE_ANIMATION_FOR_GRID = true;
+const USE_ANIMATION_FOR_GRID = false;
 const CHINESE_INFO_MESSAGE = (yearLength: number, year: string): string =>
   `我记录自己运动 ${yearLength} 年了 ` + ( year === 'Total' ? '' : `，下面列表展示的是 ${year} 年的数据`);
 
