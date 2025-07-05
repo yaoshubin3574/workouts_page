@@ -52,10 +52,8 @@ const RICH_TITLE = true;
 // IF you outside China please make sure IS_CHINESE = false
 const IS_CHINESE = true;
 const USE_ANIMATION_FOR_GRID = false;
-const CHINESE_INFO_MESSAGE = (yearLength: number, year: string): string =>
-   const yearStr = year === 'Total' ? '所有' : ` ${year} `;
-   return `Le vent se lève, il faut tenter de vivre.`;
-};
+const CHINESE_INFO_MESSAGE = `Le vent se lève, il faut tenter de vivre.`;
+
 const ENGLISH_INFO_MESSAGE = (yearLength: number, year: string): string =>
   `Logged ${yearLength} Years of Outdoor Journey` +  ( year === 'Total' ? '' : `, the map show routes in ${year}`);
 
