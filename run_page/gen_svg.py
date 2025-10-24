@@ -156,7 +156,7 @@ def main():
         dest="special_distance2",
         metavar="DISTANCE",
         type=float,
-        default=50.0,
+        default=40.0,
         help="Special Distance2 by km and corlor with the special_color2",
     )
     args_parser.add_argument(
