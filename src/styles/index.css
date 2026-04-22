@@ -38,8 +38,8 @@
     --svg-color-active-cell: var(--color-neutral-400);
     --svg-special-color: #d4a574;
     --svg-special-color2: #c5756b;
-    --font-sans: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
-    --font-mono: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
+    --font-sans: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
+    --font-mono: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
   }
 }
 
@@ -59,8 +59,8 @@
     --svg-color-active-cell: #4dd2ff;
     --svg-special-color: #f7d02c;
     --svg-special-color2: #f56c6c;
-    --font-sans: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
-    --font-mono: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
+    --font-sans: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
+    --font-mono: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
   }
 }
 
@@ -80,8 +80,8 @@
   --svg-color-active-cell: var(--color-neutral-400);
   --svg-special-color: #d4a574;
   --svg-special-color2: #c5756b;
-  --font-sans: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
-  --font-mono: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
+  --font-mono: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
 }
 
 [data-theme='dark'] {
@@ -99,8 +99,8 @@
   --svg-color-active-cell: #4dd2ff;
   --svg-special-color: #f7d02c;
   --svg-special-color2: #f56c6c;
-  --font-sans: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
-  --font-mono: "SF Mono", "PingFang SC", "Microsoft YaHei", monospace;
+  --font-sans: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
+  --font-mono: 'SF Mono', 'PingFang SC', 'Microsoft YaHei', monospace;
 }
 
 @layer base {
