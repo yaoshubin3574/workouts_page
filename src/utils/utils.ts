@@ -1,8 +1,7 @@
 import * as mapboxPolyline from '@mapbox/polyline';
 import gcoord from 'gcoord';
-import { WebMercatorViewport } from 'viewport-mercator-project';
-import { chinaGeojson, RPGeometry } from '@/static/run_countries';
-import worldGeoJson from '@surbowl/world-geo-json-zh/world.zh.json';
+import { WebMercatorViewport } from '@math.gl/web-mercator';
+import { RPGeometry } from '@/static/run_countries';
 import { chinaCities } from '@/static/city';
 import {
   MAIN_COLOR,
@@ -21,12 +20,29 @@ import {
   SNOWBOARD_COLOR,
   TRAIL_RUN_COLOR,
   RICH_TITLE,
+  MAP_TILE_STYLES,
+  MAP_TILE_STYLE_DARK,
+  getRuntimeSingleColor,
+  MAIN_COLOR_LIGHT,
 } from './const';
-import { FeatureCollection, LineString } from 'geojson';
+import {
+  FeatureCollection,
+  LineString,
+  Feature,
+  GeoJsonProperties,
+} from 'geojson';
+import { getMapThemeFromCurrentTheme } from '@/hooks/useTheme';
 
 export type Coordinate = [number, number];
 
 export type RunIds = Array<number> | [];
+
+// Check for units environment variable
+const IS_IMPERIAL = import.meta.env.VITE_USE_IMPERIAL === 'true';
+export const M_TO_DIST = IS_IMPERIAL ? 1609.344 : 1000; // Meters to Mi or Km
+export const M_TO_ELEV = IS_IMPERIAL ? 3.28084 : 1; // Meters to Feet or Meters
+export const DIST_UNIT = IS_IMPERIAL ? 'mi' : 'km'; // Label
+export const ELEV_UNIT = IS_IMPERIAL ? 'ft' : 'm'; // Label
 
 export interface Activity {
   run_id: number;
@@ -34,6 +50,7 @@ export interface Activity {
   distance: number;
   moving_time: string;
   type: string;
+  subtype: string;
   start_date: string;
   start_date_local: string;
   location_country?: string | null;
@@ -46,18 +63,19 @@ export interface Activity {
 
 const titleForShow = (run: Activity): string => {
   const date = run.start_date_local.slice(0, 11);
-  const distance = (run.distance / 1000.0).toFixed(2);
+  const distance = (run.distance / M_TO_DIST).toFixed(2);
   let name = 'Run';
   if (run.name) {
     name = run.name;
   }
-  return `${name} ${date} ${distance} KM ${!run.summary_polyline ? '(No map data for this workout)' : ''
-    }`;
+  return `${name} ${date} ${distance} ${DIST_UNIT} ${
+    !run.summary_polyline ? '(No map data for this workout)' : ''
+  }`;
 };
 
 const formatPace = (d: number): string => {
   if (Number.isNaN(d) || d == 0) return '0';
-  const pace = (1000.0 / 60.0) * (1.0 / d);
+  const pace = (M_TO_DIST / 60.0) * (1.0 / d);
   const minutes = Math.floor(pace);
   const seconds = Math.floor((pace - minutes) * 60.0);
   return `${minutes}'${seconds.toFixed(0).toString().padStart(2, '0')}"`;
@@ -88,10 +106,9 @@ const formatRunTime = (moving_time: string): string => {
 
 // for scroll to the map
 const scrollToMap = () => {
-  const el = document.querySelector('.fl.w-100.w-70-l');
-  const rect = el?.getBoundingClientRect();
-  if (rect) {
-    window.scroll(rect.left + window.scrollX, rect.top + window.scrollY);
+  const mapContainer = document.getElementById('map-container');
+  if (mapContainer) {
+    mapContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 };
 
@@ -115,7 +132,7 @@ const extractDistricts = (str: string): string[] => {
   }
 
   return locations;
-}
+};
 
 const extractCoordinate = (str: string): [number, number] | null => {
   const pattern = /'latitude': ([-]?\d+\.\d+).*?'longitude': ([-]?\d+\.\d+)/;
@@ -219,7 +236,7 @@ const pathForRun = (run: Activity): Coordinate[] => {
       }
     }
     return c;
-  } catch (err) {
+  } catch (_err) {
     return [];
   }
 };
@@ -228,11 +245,11 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
   type: 'FeatureCollection',
   features: runs.map((run) => {
     const points = pathForRun(run);
-
+    const color = colorFromType(run.type);
     return {
       type: 'Feature',
       properties: {
-        'color': colorFromType(run.type),
+        color: color,
       },
       geometry: {
         type: 'LineString',
@@ -244,10 +261,20 @@ const geoJsonForRuns = (runs: Activity[]): FeatureCollection<LineString> => ({
   }),
 });
 
-const geoJsonForMap = (): FeatureCollection<RPGeometry> => ({
-  type: 'FeatureCollection',
-  features: worldGeoJson.features.concat(chinaGeojson.features),
-})
+const geoJsonForMap = async (): Promise<FeatureCollection<RPGeometry>> => {
+  const [{ chinaGeojson }, worldGeoJson] = await Promise.all([
+    import('@/static/run_countries'),
+    import('@surbowl/world-geo-json-zh/world.zh.json'),
+  ]);
+
+  return {
+    type: 'FeatureCollection',
+    features: [
+      ...worldGeoJson.default.features,
+      ...chinaGeojson.features,
+    ] as Feature<RPGeometry, GeoJsonProperties>[],
+  };
+};
 
 const titleForType = (type: string): string => {
   switch (type) {
@@ -279,37 +306,37 @@ const titleForType = (type: string): string => {
       return RUN_TITLES.KAYAKING_TITLE;
     case 'Snowboard':
       return RUN_TITLES.SNOWBOARD_TITLE;
+    case 'BackcountrySki':
+      return RUN_TITLES.BACKCOUNTRY_SKI_TITLE;
     case 'Ski':
       return RUN_TITLES.SKI_TITLE;
     default:
       return RUN_TITLES.RUN_TITLE;
   }
-}
+};
 
 const typeForRun = (run: Activity): string => {
-  const type = run.type
+  const type = run.type;
   var distance = run.distance / 1000;
   switch (type) {
     case 'Run':
       if (distance >= 40) {
         return 'Full Marathon';
-      }
-      else if (distance > 20) {
+      } else if (distance > 20) {
         return 'Half Marathon';
       }
       return 'Run';
     case 'Trail Run':
       if (distance >= 40) {
         return 'Full Marathon';
-      }
-      else if (distance > 20) {
+      } else if (distance > 20) {
         return 'Half Marathon';
       }
       return 'Trail Run';
     default:
       return type;
   }
-}
+};
 
 const titleForRun = (run: Activity): string => {
   const type = run.type;
@@ -319,21 +346,20 @@ const titleForRun = (run: Activity): string => {
       return run.name;
     }
     // 2. try to use location+type if the location is available, eg. 'Shanghai Run'
-    const { city, province } = locationForRun(run);
+    const { city } = locationForRun(run);
     const activity_sport = titleForType(typeForRun(run));
     if (city && city.length > 0 && activity_sport.length > 0) {
       return `${city} ${activity_sport}`;
     }
   }
   // 3. use time+length if location or type is not available
-  if (type == 'Run' || type == 'Trail Run'){
-      const runDistance = run.distance / 1000;
-      if (runDistance >= 40) {
-        return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
-      }
-      else if (runDistance > 20) {
-        return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
-      }
+  if (type == 'Run' || type == 'Trail Run') {
+    const runDistance = run.distance / 1000;
+    if (runDistance >= 40) {
+      return RUN_TITLES.FULL_MARATHON_RUN_TITLE;
+    } else if (runDistance > 20) {
+      return RUN_TITLES.HALF_MARATHON_RUN_TITLE;
+    }
   }
   return titleForType(type);
 };
@@ -341,31 +367,32 @@ const titleForRun = (run: Activity): string => {
 const colorFromType = (workoutType: string): string => {
   switch (workoutType) {
     case 'Run':
-      return RUN_COLOR;
+      return getRuntimeSingleColor(RUN_COLOR);
     case 'Trail Run':
-      return TRAIL_RUN_COLOR;
+      return getRuntimeSingleColor(TRAIL_RUN_COLOR);
     case 'Ride':
     case 'Indoor Ride':
-      return RIDE_COLOR;
+      return getRuntimeSingleColor(RIDE_COLOR);
     case 'VirtualRide':
-      return VIRTUAL_RIDE_COLOR;
+      return getRuntimeSingleColor(VIRTUAL_RIDE_COLOR);
     case 'Hike':
-      return HIKE_COLOR;
+      return getRuntimeSingleColor(HIKE_COLOR);
     case 'Rowing':
-      return ROWING_COLOR;
+      return getRuntimeSingleColor(ROWING_COLOR);
     case 'Swim':
-      return SWIM_COLOR;
+      return getRuntimeSingleColor(SWIM_COLOR);
     case 'RoadTrip':
-      return ROAD_TRIP_COLOR;
+      return getRuntimeSingleColor(ROAD_TRIP_COLOR);
     case 'Flight':
-      return FLIGHT_COLOR;
+      return getRuntimeSingleColor(FLIGHT_COLOR);
     case 'Kayaking':
-      return KAYAKING_COLOR;
+      return getRuntimeSingleColor(KAYAKING_COLOR);
     case 'Snowboard':
     case 'Ski':
-      return SNOWBOARD_COLOR;
+    case 'BackcountrySki':
+      return getRuntimeSingleColor(SNOWBOARD_COLOR);
     default:
-      return MAIN_COLOR;
+      return getRuntimeSingleColor();
   }
 };
 
@@ -428,15 +455,21 @@ const filterTitleRuns = (run: Activity, title: string) =>
   titleForRun(run) === title;
 
 const filterTypeRuns = (run: Activity, type: string) => {
-  switch (type){
+  switch (type) {
     case 'Full Marathon':
-      return (run.type === 'Run' || run.type === 'Trail Run') && run.distance > 40000
+      return (
+        (run.type === 'Run' || run.type === 'Trail Run') && run.distance > 40000
+      );
     case 'Half Marathon':
-      return (run.type === 'Run' || run.type === 'Trail Run') && run.distance < 40000 && run.distance > 20000
+      return (
+        (run.type === 'Run' || run.type === 'Trail Run') &&
+        run.distance < 40000 &&
+        run.distance > 20000
+      );
     default:
-      return run.type === type
+      return run.type === type;
   }
-}
+};
 
 const filterAndSortRuns = (
   activities: Activity[],
@@ -444,13 +477,13 @@ const filterAndSortRuns = (
   filterFunc: (_run: Activity, _bvalue: string) => boolean,
   sortFunc: (_a: Activity, _b: Activity) => number,
   item2: string | null,
-  filterFunc2: ((_run: Activity, _bvalue: string) => boolean) | null,
+  filterFunc2: ((_run: Activity, _bvalue: string) => boolean) | null
 ) => {
   let s = activities;
   if (item !== 'Total') {
     s = activities.filter((run) => filterFunc(run, item));
   }
-  if(filterFunc2 != null && item2 != null){
+  if (filterFunc2 != null && item2 != null) {
     s = s.filter((run) => filterFunc2(run, item2));
   }
   return s.sort(sortFunc);
@@ -463,6 +496,55 @@ const sortDateFunc = (a: Activity, b: Activity) => {
   );
 };
 const sortDateFuncReverse = (a: Activity, b: Activity) => sortDateFunc(b, a);
+
+const getMapStyle = (vendor: string, styleName: string, token: string) => {
+  const style = (MAP_TILE_STYLES as any)[vendor][styleName];
+  if (!style) {
+    return MAP_TILE_STYLES.default;
+  }
+  if (vendor === 'maptiler' || vendor === 'stadiamaps') {
+    return style + token;
+  }
+  return style;
+};
+
+const isTouchDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    window.innerWidth <= 768
+  ); // Consider small screens as touch devices
+};
+
+/**
+ * Determines the appropriate map theme based on current settings
+ * @returns The map theme style to use
+ */
+const getMapTheme = (): string => {
+  if (typeof window === 'undefined') return MAP_TILE_STYLE_DARK;
+
+  // Check for explicit theme in DOM
+  const dataTheme = document.documentElement.getAttribute('data-theme') as
+    | 'light'
+    | 'dark'
+    | null;
+
+  // Check for saved theme in localStorage
+  const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+
+  // Determine theme based on priority:
+  // 1. DOM attribute
+  // 2. localStorage
+  // 3. Default to dark theme
+  if (dataTheme) {
+    return getMapThemeFromCurrentTheme(dataTheme);
+  } else if (savedTheme) {
+    return getMapThemeFromCurrentTheme(savedTheme);
+  } else {
+    return getMapThemeFromCurrentTheme('dark');
+  }
+};
 
 export {
   titleForShow,
@@ -487,4 +569,7 @@ export {
   colorFromType,
   formatRunTime,
   convertMovingTime2Sec,
+  getMapStyle,
+  isTouchDevice,
+  getMapTheme,
 };
