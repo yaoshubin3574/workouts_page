@@ -103,7 +103,7 @@ const LOCATION_TITLE = IS_CHINESE ? 'Location' : 'Location';
 const HOME_PAGE_TITLE = IS_CHINESE ? '首页' : 'Home';
 
 const LOADING_TEXT = IS_CHINESE ? '加载中...' : 'Loading...';
-const NO_ROUTE_DATA = IS_CHINESE ? '暂无路线数据' : 'No route data';
+const NO_ROUTE_DATA = IS_CHINESE ? '无路线数据' : 'No route data';
 const INVALID_ROUTE_DATA = IS_CHINESE ? '路线数据无效' : 'Invalid route data';
 
 const RUN_TITLES = {
