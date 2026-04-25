@@ -264,7 +264,8 @@ export const MAP_TILE_STYLE_DARK = 'dark-v11';
 // maptiler: Gt5R0jT8tuIYxW6sNrAg | sign up at https://cloud.maptiler.com/auth/widget
 // stadiamaps: 8a769c5a-9125-4936-bdcf-a6b90cb5d0a4 | sign up at https://client.stadiamaps.com/signup/
 // mapcn: empty
-export const MAP_TILE_ACCESS_TOKEN = 'pk.eyJ1Ijoic240MDQiLCJhIjoiY2t6MTJweXM4MHowMzJ4bzcyMW5pNzR2MyJ9.bdHQ_p17o2-GV6qS0GiT3Q';
+export const MAP_TILE_ACCESS_TOKEN =
+  'pk.eyJ1Ijoic240MDQiLCJhIjoiY2t6MTJweXM4MHowMzJ4bzcyMW5pNzR2MyJ9.bdHQ_p17o2-GV6qS0GiT3Q';
 
 export const MAP_TILE_STYLES = {
   mapcn: {
