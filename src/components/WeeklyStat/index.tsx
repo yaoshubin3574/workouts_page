@@ -103,7 +103,7 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
       const d = new Date(item.timestamp);
       const month = d.getMonth() + 1;
       const year = d.getFullYear();
-      let xLabel = '';
+      let xLabel: string;
 
       if (year !== currentYear) {
         currentYear = year;
@@ -180,7 +180,7 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
   if (!data || data.length === 0) return null;
 
   return (
-    <div className="mb-2 mt-8 h-64 w-full">
+    <div className="mt-8 mb-2 h-64 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
