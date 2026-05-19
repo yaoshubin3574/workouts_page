@@ -188,7 +188,11 @@ const WeeklyStat = ({ runs }: WeeklyStatProps) => {
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
           <XAxis
-            dataKey="xLabel"
+            dataKey="timestamp"
+            tickFormatter={(value) => {
+              const item = data.find((d) => d.timestamp === value);
+              return item ? item.xLabel : '';
+            }}
             tick={{ fontSize: 12 }}
             tickMargin={10}
             minTickGap={20}
