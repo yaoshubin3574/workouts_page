@@ -183,7 +183,7 @@ const YearStat = ({
         {summary.totalDistance > 0 && (
           <WorkoutStat
             key="total"
-            value={runs.length}
+            value={summary.runCount}
             description={' Total'}
             distance={summary.totalDistance}
           />
