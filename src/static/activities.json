@@ -8382,5 +8382,21 @@
 "elevation_gain": 7.0,
 "source": "StravaGPX",
 "streak": 1
+},
+{
+"run_id": 1783176236000,
+"name": "Ride",
+"distance": 41512.81835847489,
+"moving_time": "2:17:04",
+"type": "Ride",
+"start_date": "2026-07-04 14:43:56",
+"start_date_local": "2026-07-04 22:43:56",
+"location_country": "\u9053\u6e05\u8def\u5c0f\u5b66, \u9053\u6e05\u8def, \u5f00\u53d1\u533a\u8857\u9053, \u897f\u53f0\u5934\u6751, \u5173\u5824\u4e61, \u7ea2\u65d7\u533a, \u65b0\u4e61\u5e02, \u6cb3\u5357\u7701, 453000, \u4e2d\u56fd",
+"summary_polyline": "engvE_tfvTQnBLvzCt@v@fu@Et@j@B~Cw@~{@yAdVuAtKiLxp@wEpQsIrRk@fCoMhSc_Cq}Dw\\qW_A_Bgd@o]_E}B}@y@YqA{WoTaCUuFaFaBkDMoAvJf@f@Q`@}AVyv@SsG_AyA}@]s]y@s@b@pBfeCApH[vA}L@sC_@BycAEcDYo@eWYsCXcfAL]lAEfEJ~bAj@\\bf@Ff@\\bCbxAqDpY?rBj@j@tiAlVf[p@|o@dDtY\\h@n@|@o@hkD`@hV_@`CcAl@wAjKao@|Ckd@F}Va@oC{Cw@w{@Kp@k@zKu@vFgDvA}c@nBiYuEa@sLDc@YTc`@\\q@x@OfVDBqFa@}ElAwAToED_`D`@qAIcAw@q@}AKcVG}AtBEtzAjH^rAh@GvH_@b@",
+"average_heartrate": 124.0,
+"average_speed": 5.0477648782192235,
+"elevation_gain": 34.0,
+"source": "StravaGPX",
+"streak": 1
 }
 ]
