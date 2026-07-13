@@ -160,6 +160,7 @@ English | [简体中文](https://github.com/yihong0618/running_page/blob/master/
 - **[New Way To Sync Nike Run Club](#nike-run-club-new)**
 - **[Nike Run Club](#nike-run-club)**
 - **[Strava](#strava)**
+- **[Google Health](#google-health)**
 - **[GPX](#gpx)**
 - **[TCX](#tcx)**
 - **[FIT](#fit)**
@@ -720,6 +721,67 @@ python run_page/nike_sync.py eyJhbGciThiMTItNGIw******
    - <https://developers.strava.com/docs/getting-started>
    - <https://github.com/barrald/strava-uploader>
    - <https://github.com/strava/go.strava>
+
+</details>
+
+### Google Health
+
+<details>
+<summary>Get your <code>Google Health</code> data</summary>
+
+<br>
+
+Google Health API is the v4 Google API that replaces the legacy Fitbit Web API. This sync downloads `exercise` records from `https://health.googleapis.com/v4/users/me/dataTypes/exercise/dataPoints`, exports each exercise as TCX with `:exportExerciseTcx?alt=media`, saves the files to `TCX_OUT` by default, then imports them into `data.db` and `activities.json`. If you choose GPX output, the script converts the v4 TCX export locally and saves files to `GPX_OUT`.
+
+1. Create a Google Cloud project, enable Google Health API, and create an OAuth 2.0 Web client. Add your account as a test user while the app is in Testing mode.
+2. Add these scopes to the OAuth client data access page:
+
+   ```plaintext
+   https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly
+   https://www.googleapis.com/auth/googlehealth.location.readonly
+   ```
+
+3. Open the authorization URL below after replacing `${client_id}`. The redirect URI must match the one configured in Google Cloud.
+
+   ```plaintext
+   https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=http://localhost&response_type=code&access_type=offline&scope=https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly%20https://www.googleapis.com/auth/googlehealth.location.readonly&prompt=consent
+   ```
+
+4. Copy the returned `code` and exchange it for a `refresh_token`:
+
+   ```bash
+   curl -L -X POST 'https://oauth2.googleapis.com/token' \
+   -H 'Content-Type: application/x-www-form-urlencoded' \
+   -d 'client_id=${client_id}&client_secret=${client_secret}&code=${code}&redirect_uri=http://localhost&grant_type=authorization_code'
+   ```
+
+5. Sync Google Health data:
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token}
+   ```
+
+   If you only want running exercises:
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --only-run
+   ```
+
+   Optional filters:
+   - `--start-date YYYY-MM-DD` syncs exercises starting from that civil date. If omitted, the script uses the latest `start_date_local` in `data.db` as the Google Health `exercise.interval.civil_start_time` lower bound.
+   - `--end-date YYYY-MM-DD` syncs exercises before that civil date.
+   - `--all` ignores the local database date and asks Google Health for all exercises.
+   - `--format gpx` exports GPX files to `GPX_OUT`; the default is `--format tcx`.
+
+   Example for GPX:
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --format gpx
+   ```
+
+6. For GitHub Actions, add `GOOGLE_HEALTH_CLIENT_ID`, `GOOGLE_HEALTH_CLIENT_SECRET`, and `GOOGLE_HEALTH_REFRESH_TOKEN` to GitHub Secrets, then set `RUN_TYPE` to `google_health`.
+
+> Note: Google Health scopes are restricted. Refresh tokens created while the OAuth app is in Testing mode may expire after 7 days. Publish and complete the required verification before relying on long-running automation.
 
 </details>
 

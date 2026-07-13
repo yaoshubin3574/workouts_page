@@ -165,6 +165,7 @@ R.I.P. 希望大家都能健康顺利的跑过终点，逝者安息。
 - **[Nike Run Club](#nike-run-club)**
 - **[Garmin](#garmin)**
 - **[Garmin-cn](#garmin-cn-大陆用户使用)**
+- **[Google Health](#google-health)**
 - **[Keep](#keep)**
 - **[悦跑圈](#joyrun悦跑圈)** ：限制单个设备，无法自动化
 - **[郁金香运动](#tulipsport)**
@@ -840,6 +841,67 @@ python run_page/nike_sync.py eyJhbGciThiMTItNGIw******
    <https://developers.strava.com/docs/getting-started>
    <https://github.com/barrald/strava-uploader>
    <https://github.com/strava/go.strava>
+
+</details>
+
+### Google Health
+
+<details>
+<summary>获取 Google Health 数据</summary>
+
+<br>
+
+Google Health API 是替代旧 Fitbit Web API 的 v4 Google API。本同步会从 `https://health.googleapis.com/v4/users/me/dataTypes/exercise/dataPoints` 读取 `exercise` 运动记录，再通过 `:exportExerciseTcx?alt=media` 导出 TCX，默认保存到 `TCX_OUT`，最后导入 `data.db` 与 `activities.json`。如果选择 GPX 输出，脚本会基于 v4 TCX 导出在本地转换 GPX，并保存到 `GPX_OUT`。
+
+1. 创建 Google Cloud 项目，启用 Google Health API，并创建 OAuth 2.0 Web client。OAuth 应用还在 Testing 状态时，需要把自己的 Google 账号加入 test users。
+2. 在 OAuth client 的 data access 页面添加以下 scopes：
+
+   ```plaintext
+   https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly
+   https://www.googleapis.com/auth/googlehealth.location.readonly
+   ```
+
+3. 将下面链接中的 `${client_id}` 替换为你的 Client ID 后在浏览器打开。`redirect_uri` 需要和 Google Cloud 中配置的一致。
+
+   ```plaintext
+   https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=http://localhost&response_type=code&access_type=offline&scope=https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly%20https://www.googleapis.com/auth/googlehealth.location.readonly&prompt=consent
+   ```
+
+4. 复制返回链接中的 `code`，用它换取 `refresh_token`：
+
+   ```bash
+   curl -L -X POST 'https://oauth2.googleapis.com/token' \
+   -H 'Content-Type: application/x-www-form-urlencoded' \
+   -d 'client_id=${client_id}&client_secret=${client_secret}&code=${code}&redirect_uri=http://localhost&grant_type=authorization_code'
+   ```
+
+5. 在项目根目录同步 Google Health 数据：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token}
+   ```
+
+   如果只同步跑步：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --only-run
+   ```
+
+   可选参数：
+   - `--start-date YYYY-MM-DD`：同步该日期及之后开始的运动。如果不传，脚本会使用 `data.db` 中最新的 `start_date_local` 作为 Google Health `exercise.interval.civil_start_time` 的起始时间。
+   - `--end-date YYYY-MM-DD`：同步该日期之前开始的运动。
+   - `--all`：忽略本地数据库日期，向 Google Health 请求全部运动。
+   - `--format gpx`：导出 GPX 文件到 `GPX_OUT`；默认是 `--format tcx`。
+
+   GPX 示例：
+
+   ```bash
+   python run_page/google_health_sync.py ${client_id} ${client_secret} ${refresh_token} --format gpx
+   ```
+
+6. 如果使用 GitHub Actions，把 `GOOGLE_HEALTH_CLIENT_ID`、`GOOGLE_HEALTH_CLIENT_SECRET`、`GOOGLE_HEALTH_REFRESH_TOKEN` 添加到 GitHub Secrets，然后将 `RUN_TYPE` 设置为 `google_health`。
+
+> 注意：Google Health scopes 属于 restricted scopes。OAuth app 仍处于 Testing 状态时生成的 refresh token 可能 7 天后过期；如果要长期自动同步，需要发布应用并完成要求的验证。
 
 </details>
 
