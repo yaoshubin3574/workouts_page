@@ -10,12 +10,11 @@ import httpx
 import lxml.etree as ET
 from sqlalchemy import func
 
-from config import GPX_FOLDER, JSON_FILE, SQL_FILE, TCX_FOLDER
+from config import JSON_FILE, SQL_FILE, FOLDER_DICT
 from generator import Generator
 from generator.db import Activity
 from gpxtrackposter.track import Track
 from synced_data_file_logger import load_synced_file_list
-
 
 GOOGLE_HEALTH_API_BASE_URL = "https://health.googleapis.com/v4"
 GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token"
@@ -34,7 +33,9 @@ def _parse_date(value):
 
 
 def _get_since_date_from_db(generator):
-    last_activity = generator.session.query(func.max(Activity.start_date_local)).scalar()
+    last_activity = generator.session.query(
+        func.max(Activity.start_date_local)
+    ).scalar()
     if not last_activity:
         return None
     return datetime.datetime.fromisoformat(last_activity).isoformat(timespec="seconds")
@@ -64,12 +65,19 @@ def _exercise_type(data_point):
 def _gpx_activity_type(data_point):
     exercise_type = _exercise_type(data_point).lower()
     return {
-        "running": "running",
-        "walking": "walking",
-        "hiking": "hiking",
-        "biking": "cycling",
-        "road_biking": "cycling",
-        "mountain_biking": "cycling",
+        "running": "Run",
+        "trail_run": "Run",
+        "walking": "Hike",
+        "hiking": "Hike",
+        "biking": "Ride",
+        "outdoor_bike": "Ride",
+        "electric_bike": "Ride",
+        "road_biking": "Ride",
+        "mountain_biking": "Ride",
+        "skiing": "Ski",
+        "snowboarding": "Snowboard",
+        "swimming_open_water": "Snowboard",
+        "swimming_pool": "Snowboard",
     }.get(exercise_type, exercise_type or "other")
 
 
@@ -107,10 +115,6 @@ def _parse_float(value):
         return None
 
 
-def _output_folder(export_format):
-    return GPX_FOLDER if export_format == "gpx" else TCX_FOLDER
-
-
 def _output_file_name(file_id, export_format):
     return f"{GOOGLE_HEALTH_FILE_PREFIX}-{file_id}.{export_format}"
 
@@ -121,7 +125,7 @@ def _metadata_key(file_id):
 
 def _output_file_path(file_id, export_format):
     return os.path.join(
-        _output_folder(export_format),
+        FOLDER_DICT[export_format],
         _output_file_name(file_id, export_format),
     )
 
@@ -313,9 +317,7 @@ def _tcx_to_gpx(tcx_data, data_point, metadata):
             time=point_time,
         )
 
-        heartrate = trackpoint.findtext(
-            "tcx:HeartRateBpm/tcx:Value", namespaces=ns
-        )
+        heartrate = trackpoint.findtext("tcx:HeartRateBpm/tcx:Value", namespaces=ns)
         if heartrate is not None:
             point.extensions.append(
                 ET.fromstring(
@@ -445,7 +447,7 @@ def run_google_health_sync(
     if export_format not in SUPPORTED_EXPORT_FORMATS:
         raise ValueError(f"export_format must be one of {SUPPORTED_EXPORT_FORMATS}")
 
-    output_folder = _output_folder(export_format)
+    output_folder = FOLDER_DICT[export_format]
     os.makedirs(output_folder, exist_ok=True)
 
     generator = Generator(SQL_FILE)
