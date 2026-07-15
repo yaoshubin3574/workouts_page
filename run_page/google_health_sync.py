@@ -76,8 +76,8 @@ def _gpx_activity_type(data_point):
         "mountain_biking": "Ride",
         "skiing": "Ski",
         "snowboarding": "Snowboard",
-        "swimming_open_water": "Snowboard",
-        "swimming_pool": "Snowboard",
+        "swimming_open_water": "Swim",
+        "swimming_pool": "Swim",
     }.get(exercise_type, exercise_type or "other")
 
 

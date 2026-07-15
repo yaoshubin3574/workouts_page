@@ -749,6 +749,11 @@ Google Health API is the v4 Google API that replaces the legacy Fitbit Web API. 
       - Add **both** scopes (required for all formats):
       - `https://www.googleapis.com/auth/googlehealth.activity_and_fitness.readonly`
       - `https://www.googleapis.com/auth/googlehealth.location.readonly`
+   5. Add Test User
+      - Go to **APIs & Services → OAuth consent screen → Audience**
+      - Find the **Test Users** section, click + Add users
+      - Add your own Google account email
+      - Save
 
 2. Open the authorization URL below after replacing `${client_id}`. The redirect URI must match the one configured in Google Cloud.
 
