@@ -281,6 +281,7 @@ def _tcx_to_gpx(tcx_data, data_point, metadata):
 
     gpx = gpxpy.gpx.GPX()
     gpx.nsmap["gpxtpx"] = "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+    gpx.creator = "google_health"
 
     track = gpxpy.gpx.GPXTrack()
     track.name = _exercise_title(data_point)
