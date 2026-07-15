@@ -8398,5 +8398,21 @@
 "elevation_gain": 34.0,
 "source": "StravaGPX",
 "streak": 1
+},
+{
+"run_id": 1784037025000,
+"name": "Run",
+"distance": 3065.349184759762,
+"moving_time": "0:24:01",
+"type": "Run",
+"start_date": "2026-07-14 13:50:25",
+"start_date_local": "2026-07-14 21:50:25",
+"location_country": "\u4e16\u7eaa\u8def, \u6587\u82d1\u8857\u9053, \u6c38\u5174\u5c6f, \u5c71\u9633\u533a, \u7126\u4f5c\u5e02, \u6cb3\u5357\u7701, 454000, \u4e2d\u56fd",
+"summary_polyline": "gdwuEclhrTGyBoA]}DjAKdBjAp@dEy@\\aAWqAaA_@eE~@OjBd@t@x@JrD}@d@wASw@}BWmCb@Yt@FtA~Ap@hDs@`@iAE_AcBe@_DZk@r@E~@v@nAxDUhAgBgAkBoEp@]bBNz@v@^vDc@t@aCiAeAkEh@a@h@?dArApA`Eq@`@eBw@mAuEj@g@dA",
+"average_heartrate": 149.0,
+"average_speed": 2.127237463400251,
+"elevation_gain": 12.0,
+"source": "StravaGPX",
+"streak": 1
 }
 ]
