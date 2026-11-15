@@ -1,4 +1,5 @@
 ﻿name: Run Data Sync
+run-name: Run Data Sync
 
 on:
   workflow_dispatch:
